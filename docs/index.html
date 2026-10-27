@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca Digital — Gestión de Libros y Préstamos</title>
+  <meta name="description" content="Aplicación web para gestionar una biblioteca: catálogo, préstamos, formulario y resumen.">
+  <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="cabecera">
+    <h1>Biblioteca Digital</h1>
+    <nav class="menu" id="menu">
+      <a href="#catalogo" data-vista="catalogo" class="activo">Catálogo</a>
+      <a href="#prestamos" data-vista="prestamos">Mis préstamos (<span id="contador-prestamos">0</span>)</a>
+      <a href="#formulario" data-vista="formulario">Agregar libro</a>
+      <a href="#resumen" data-vista="resumen">Resumen</a>
+      <span id="saludo-usuario" class="saludo"></span>
+    </nav>
+  </header>
+
+  <main>
+    <section id="vista-catalogo" class="vista activa">
+      <h2>Catálogo</h2>
+      
+      <!-- Controles estructurados en filas -->
+      <div class="controles">
+        <div class="fila-controles">
+          <div class="grupo-control">
+            <label for="busqueda">Buscar por título o autor</label>
+            <input id="busqueda" type="search" placeholder="Escribe para buscar..." autocomplete="off">
+          </div>
+          <div class="filtros-estado" id="filtros-estado" role="group" aria-label="Filtrar por estado">
+            <button data-estado="todos" class="filtro activo">Todos</button>
+            <button data-estado="disponibles" class="filtro">Disponibles</button>
+            <button data-estado="prestados" class="filtro">Prestados</button>
+          </div>
+        </div>
+
+        <div class="fila-controles">
+          <div class="grupo-control">
+            <label for="filtro-genero">Género</label>
+            <select id="filtro-genero"><option value="todos">Todos los géneros</option></select>
+          </div>
+          <div class="grupo-control">
+            <label for="orden">Ordenar por</label>
+            <select id="orden">
+              <option value="titulo">Título</option>
+              <option value="autor">Autor</option>
+              <option value="anio">Año</option>
+            </select>
+          </div>
+          <div class="grupo-control">
+            <label for="direccion">Dirección</label>
+            <select id="direccion">
+              <option value="asc">Ascendente</option>
+              <option value="desc">Descendente</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <p id="contador-libros" class="contador-libros"></p>
+      <p id="mensaje-catalogo" class="mensaje" aria-live="polite"></p>
+      <div id="grid-libros" class="grid-libros"></div>
+    </section>
+
+    <section id="vista-prestamos" class="vista">
+      <h2>Mis préstamos</h2>
+      <p id="mensaje-prestamos" class="mensaje" aria-live="polite"></p>
+      <h3>Préstamos activos</h3>
+      <div id="lista-activos" class="lista-prestamos"></div>
+      <h3>Historial</h3>
+      <div id="lista-historial" class="lista-prestamos"></div>
+    </section>
+
+    <section id="vista-formulario" class="vista">
+      <h2 id="titulo-formulario">Agregar libro</h2>
+      <form id="form-libro" novalidate>
+        <div class="campo">
+          <label for="campo-titulo">Título</label>
+          <input id="campo-titulo" type="text" maxlength="60">
+          <p class="error" id="error-titulo"></p>
+        </div>
+        <div class="campo">
+          <label for="campo-autor">Autor</label>
+          <input id="campo-autor" type="text">
+          <p class="error" id="error-autor"></p>
+        </div>
+        <div class="campo">
+          <label for="campo-anio">Año</label>
+          <input id="campo-anio" type="number" min="1000" max="2026">
+          <p class="error" id="error-anio"></p>
+        </div>
+        <div class="campo">
+          <label for="campo-genero">Género</label>
+          <select id="campo-genero">
+            <option value="novela">Novela</option>
+            <option value="ciencia">Ciencia</option>
+            <option value="historia">Historia</option>
+            <option value="poesia">Poesía</option>
+            <option value="ensayo">Ensayo</option>
+            <option value="infantil">Infantil</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="campo-comentario">Comentario</label>
+          <textarea id="campo-comentario" maxlength="120" rows="3"></textarea>
+          <p class="contador-chars"><span id="restantes-comentario">120</span> caracteres restantes</p>
+        </div>
+        <div class="campo checkbox">
+          <input id="campo-coleccion" type="checkbox">
+          <label for="campo-coleccion">Ejemplar de colección</label>
+        </div>
+        <div class="acciones-form">
+          <button type="submit" id="btn-guardar">Agregar libro</button>
+          <button type="button" id="btn-cancelar-edicion" class="oculto">Cancelar</button>
+        </div>
+        <p id="mensaje-formulario" class="mensaje" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="vista-resumen" class="vista">
+      <h2>Resumen y ajustes</h2>
+      <div id="resumen" class="resumen"></div>
+      <h3>Ajustes</h3>
+      <button id="btn-tema">Cambiar tema</button>
+      <div class="campo" style="margin-top: 1rem; max-width: 300px;">
+        <label for="campo-usuario">Tu nombre</label>
+        <input id="campo-usuario" type="text" maxlength="40">
+      </div>
+      <button id="btn-restablecer" class="peligro" style="margin-top: 1rem;">Restablecer biblioteca</button>
+      <p id="mensaje-resumen" class="mensaje" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer>&copy; 2026 Biblioteca Digital</footer>
+
+  <div id="modal-prestar" class="modal oculto" role="dialog" aria-modal="true">
+    <div class="modal-contenido">
+      <h2>Prestar libro</h2>
+      <form id="form-prestar">
+        <div class="campo">
+          <label for="nombre-persona">¿A quién se presta?</label>
+          <input id="nombre-persona" type="text" maxlength="40">
+          <p class="error" id="error-prestar"></p>
+        </div>
+        <div class="acciones-form">
+          <button type="submit">Confirmar</button>
+          <button type="button" data-cerrar-modal>Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="modal-eliminar" class="modal oculto" role="dialog" aria-modal="true">
+    <div class="modal-contenido">
+      <p id="mensaje-eliminar"></p>
+      <div class="acciones-form">
+        <button id="btn-confirmar-eliminar" class="peligro">Eliminar</button>
+        <button data-cerrar-modal>Cancelar</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
